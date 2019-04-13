@@ -1,0 +1,8 @@
+[package]
+name = "census_extract"
+version = "0.1.0"
+authors = ["Ethan Steinberg <ethan.steinberg@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+csv = "1"
