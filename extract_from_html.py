@@ -5,26 +5,27 @@ final = {}
 
 all_laws = set()
 
-with open('data/State HIV Laws _ Law _ Policies _ HIV_AIDS _ CDC.html') as f:
-    tree = lxml.html.parse(f)
+page = requests.get('https://www.cdc.gov/hiv/policies/law/states/index.html').text
 
-    sel = CSSSelector('a.onThisPageAnchor.tp-link-policy')
+tree = lxml.html.fromstring(page)
 
-    # Apply the selector to the DOM tree.
-    results = sel(tree)
+sel = CSSSelector('a.onThisPageAnchor.tp-link-policy')
 
-    for result in results:
-        row_selector = CSSSelector('td:first-child')
+# Apply the selector to the DOM tree.
+results = sel(tree)
 
-        laws = set()
+for result in results:
+    row_selector = CSSSelector('td:first-child')
 
-        for a in row_selector(result.getparent()):
-            if a.text is not None and a.text.strip() != '':
-                laws.add(a.text.strip())
+    laws = set()
 
-        all_laws |= laws
+    for a in row_selector(result.getparent()):
+        if a.text is not None and a.text.strip() != '':
+            laws.add(a.text.strip())
 
-        final[result.get('title')] = laws
+    all_laws |= laws
+
+    final[result.get('title')] = laws
 
 all_laws = list(all_laws)
 
