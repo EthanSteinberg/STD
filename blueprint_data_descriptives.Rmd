@@ -1,0 +1,1057 @@
+---
+title: "blueprint_datathon"
+author: "Carolyn Oliver"
+date: "4/12/2019"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
+---
+
+#STD Dataset, Descriptive Data Visualization
+
+```{r libraries_data}
+library(tidyverse)
+stanford_blueprint_datathon_2019_data <- as.tibble(read.csv("~/Downloads/stanford_blueprint_datathon_2019_data.csv"))
+census_aggregated <- as.tibble(read.delim2("~/Desktop/census_aggregated.csv.txt"))
+data_full <- as.tibble(merge(stanford_blueprint_datathon_2019_data, census_aggregated, all.x=TRUE, all.y=TRUE, by=c("age","gender","state","income","education"))) %>% 
+             mutate(chlamydia_diag = chlamydia*count) %>% 
+  mutate(gential_warts_diag = gential_warts*count) %>% 
+  mutate(gonorrhea_diag = gonorrhea*count) %>% 
+  mutate(herpes_diag = herpes*count) %>% 
+  mutate(hpv_diag = hpv*count) %>% 
+  mutate(other_std_diag = other_std*count) %>% 
+  mutate(parasitic_diag = parasitic*count) %>% 
+  mutate(syphilis_diag = syphilis*count) %>% 
+  mutate(trich_diag = trich*count) %>% 
+  filter(age!="0-17 years old")
+```
+
+## Chlamydia
+
+```{r chlamydia}
+#Chlamydia ----
+#chlamydia ratio X age X gender
+data_full %>% select(age, gender, date, chlamydia) %>% 
+  group_by(age, gender) %>% summarize(mean = mean(chlamydia, na.rm = TRUE)) %>% 
+  ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+  labs(x = "Age", y="Mean Ratio of Chlamydia Diagnoses")
+
+#chlamydia diags X age X gender
+  data_full %>% select(age, gender, date, chlamydia_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(chlamydia_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+  labs(x = "Age", y="# of Chlamydia Diagnoses")
+  
+  #chlamydia ratio x age x gender x time
+  data_full %>% select(age, gender, date, chlamydia) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(chlamydia,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of Chlamydia Diagnoses")
+  
+  #chlamydia diag x age x gender x time
+  data_full %>% select(age, gender, date, chlamydia_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(chlamydia_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of Chlamydia Diagnoses")
+  
+  #chlamydia ratio X state (male)
+  data_full %>% select(state, gender, date, chlamydia) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(chlamydia, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of Chlamydia Diagnoses")
+  
+  #chlamydia diag X state (male)
+  data_full %>% select(state, gender, date, chlamydia_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(chlamydia_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of Chlamydia Diagnoses")
+  
+  #chlamydia ratio X state (female)
+  data_full %>% select(state, gender, date, chlamydia) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(chlamydia, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of Chlamydia Diagnoses")
+  
+  #chlamydia diag X state (female)
+  data_full %>% select(state, gender, date, chlamydia_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(chlamydia_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of Chlamydia Diagnoses")
+  
+  #chlamydia ratio x income x gender
+  data_full %>% select(age, income, gender, date, chlamydia, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(chlamydia, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of Chlamydia Diagnoses")
+  
+  #chlamydia diag x income x gender
+  data_full %>% select(age, income, gender, date, chlamydia_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(chlamydia_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of Chlamydia Diagnoses")
+  
+  #chlamydia ratio x education x gender
+  data_full %>% select(age, education, gender, date, chlamydia) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(chlamydia, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of chlamydia Diagnoses")
+  
+  #chlamydia diag x education x gender
+  data_full %>% select(age, education, gender, date, chlamydia_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(chlamydia_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of chlamydia Diagnoses")
+
+  
+```
+
+## Genital Warts
+
+```{r genital_warts}
+
+#Genital Warts ----
+  data_full %>% select(age, gender, date, gential_warts) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(gential_warts, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of Genital Warts Diagnoses")
+  
+  #gential_warts diags X age X gender
+  data_full %>% select(age, gender, date, gential_warts_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(gential_warts_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of Genital Warts Diagnoses")
+  
+  #gential_warts ratio x age x gender x time
+  data_full %>% select(age, gender, date, gential_warts) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(gential_warts,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of Genital Warts Diagnoses")
+  
+  #gential_warts diag x age x gender x time
+  data_full %>% select(age, gender, date, gential_warts_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(gential_warts_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of Genital Warts Diagnoses")
+  
+  #gential_warts ratio X state (male)
+  data_full %>% select(state, gender, date, gential_warts) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gential_warts, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of Genital Warts Diagnoses")
+  
+  #gential_warts diag X state (male)
+  data_full %>% select(state, gender, date, gential_warts_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gential_warts_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of Genital Warts Diagnoses")
+  
+  #gential_warts ratio X state (female)
+  data_full %>% select(state, gender, date, gential_warts) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gential_warts, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of Genital Warts Diagnoses")
+  
+  #gential_warts diag X state (female)
+  data_full %>% select(state, gender, date, gential_warts_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gential_warts_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of Genital Warts Diagnoses")
+  
+  #gential_warts ratio x income x gender
+  data_full %>% select(age, income, gender, date, gential_warts, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(gential_warts, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of Genital Warts Diagnoses")
+  
+  #gential_warts diag x income x gender
+  data_full %>% select(age, income, gender, date, gential_warts_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(gential_warts_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of Genital Warts Diagnoses")
+  
+  #gential_warts ratio x education x gender
+  data_full %>% select(age, education, gender, date, gential_warts) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(gential_warts, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of Genital Warts Diagnoses")
+  
+  #gential_warts diag x education x gender
+  data_full %>% select(age, education, gender, date, gential_warts_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(gential_warts_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of Genital Warts Diagnoses")
+  
+  
+  
+```
+
+## Gonorrhea
+
+```{r gonorrhea}
+#Gonorrhea ----
+  #gonorrhea ratio X age X gender
+  data_full %>% select(age, gender, date, gonorrhea) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(gonorrhea, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of gonorrhea Diagnoses")
+  
+  #gonorrhea diags X age X gender
+  data_full %>% select(age, gender, date, gonorrhea_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(gonorrhea_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of gonorrhea Diagnoses")
+  
+  #gonorrhea ratio x age x gender x time
+  data_full %>% select(age, gender, date, gonorrhea) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(gonorrhea,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of gonorrhea Diagnoses")
+  
+  #gonorrhea diag x age x gender x time
+  data_full %>% select(age, gender, date, gonorrhea_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(gonorrhea_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of gonorrhea Diagnoses")
+  
+  #gonorrhea ratio X state (male)
+  data_full %>% select(state, gender, date, gonorrhea) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gonorrhea, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of gonorrhea Diagnoses")
+  
+  #gonorrhea diag X state (male)
+  data_full %>% select(state, gender, date, gonorrhea_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gonorrhea_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of gonorrhea Diagnoses")
+  
+  #gonorrhea ratio X state (female)
+  data_full %>% select(state, gender, date, gonorrhea) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gonorrhea, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of gonorrhea Diagnoses")
+  
+  #gonorrhea diag X state (female)
+  data_full %>% select(state, gender, date, gonorrhea_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(gonorrhea_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of gonorrhea Diagnoses")
+  
+  #gonorrhea ratio x income x gender
+  data_full %>% select(age, income, gender, date, gonorrhea, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(gonorrhea, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of gonorrhea Diagnoses")
+  
+  #gonorrhea diag x income x gender
+  data_full %>% select(age, income, gender, date, gonorrhea_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(gonorrhea_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of gonorrhea Diagnoses")
+  
+  #gonorrhea ratio x education x gender
+  data_full %>% select(age, education, gender, date, gonorrhea) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(gonorrhea, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of gonorrhea Diagnoses")
+  
+  #gonorrhea diag x education x gender
+  data_full %>% select(age, education, gender, date, gonorrhea_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(gonorrhea_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of gonorrhea Diagnoses")
+  
+  
+  
+```  
+
+## Herpes 
+```{r herpes}
+#Herpes ----
+  #herpes ratio X age X gender
+  data_full %>% select(age, gender, date, herpes) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(herpes, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of herpes Diagnoses")
+  
+  #herpes diags X age X gender
+  data_full %>% select(age, gender, date, herpes_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(herpes_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of herpes Diagnoses")
+  
+  #herpes ratio x age x gender x time
+  data_full %>% select(age, gender, date, herpes) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(herpes,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of herpes Diagnoses")
+  
+  #herpes diag x age x gender x time
+  data_full %>% select(age, gender, date, herpes_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(herpes_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of herpes Diagnoses")
+  
+  #herpes ratio X state (male)
+  data_full %>% select(state, gender, date, herpes) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(herpes, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of herpes Diagnoses")
+  
+  #herpes diag X state (male)
+  data_full %>% select(state, gender, date, herpes_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(herpes_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of herpes Diagnoses")
+  
+  #herpes ratio X state (female)
+  data_full %>% select(state, gender, date, herpes) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(herpes, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of herpes Diagnoses")
+  
+  #herpes diag X state (female)
+  data_full %>% select(state, gender, date, herpes_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(herpes_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of herpes Diagnoses")
+  
+  #herpes ratio x income x gender
+  data_full %>% select(age, income, gender, date, herpes, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(herpes, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of herpes Diagnoses")
+  
+  #herpes diag x income x gender
+  data_full %>% select(age, income, gender, date, herpes_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(herpes_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of herpes Diagnoses")
+  
+  #herpes ratio x education x gender
+  data_full %>% select(age, education, gender, date, herpes) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(herpes, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of herpes Diagnoses")
+  
+  #herpes diag x education x gender
+  data_full %>% select(age, education, gender, date, herpes_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(herpes_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of herpes Diagnoses")
+  
+```
+
+## HPV
+```{r hpv}
+#HPV ----
+  #hpv ratio X age X gender
+  data_full %>% select(age, gender, date, hpv) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(hpv, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of hpv Diagnoses")
+  
+  #hpv diags X age X gender
+  data_full %>% select(age, gender, date, hpv_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(hpv_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of hpv Diagnoses")
+  
+  #hpv ratio x age x gender x time
+  data_full %>% select(age, gender, date, hpv) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(hpv,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of hpv Diagnoses")
+  
+  #hpv diag x age x gender x time
+  data_full %>% select(age, gender, date, hpv_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(hpv_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of hpv Diagnoses")
+  
+  #hpv ratio X state (male)
+  data_full %>% select(state, gender, date, hpv) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(hpv, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of hpv Diagnoses")
+  
+  #hpv diag X state (male)
+  data_full %>% select(state, gender, date, hpv_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(hpv_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of hpv Diagnoses")
+  
+  #hpv ratio X state (female)
+  data_full %>% select(state, gender, date, hpv) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(hpv, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of hpv Diagnoses")
+  
+  #hpv diag X state (female)
+  data_full %>% select(state, gender, date, hpv_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(hpv_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of hpv Diagnoses")
+  
+  #hpv ratio x income x gender
+  data_full %>% select(age, income, gender, date, hpv, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(hpv, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of hpv Diagnoses")
+  
+  #hpv diag x income x gender
+  data_full %>% select(age, income, gender, date, hpv_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(hpv_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of hpv Diagnoses")
+  
+  #hpv ratio x education x gender
+  data_full %>% select(age, education, gender, date, hpv) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(hpv, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of hpv Diagnoses")
+  
+  #hpv diag x education x gender
+  data_full %>% select(age, education, gender, date, hpv_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(hpv_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of hpv Diagnoses")
+  
+  
+  
+```
+
+## Other STDs
+```{r other_std}
+  #other_std ratio X age X gender
+  data_full %>% select(age, gender, date, other_std) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(other_std, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of other_std Diagnoses")
+  
+  #other_std diags X age X gender
+  data_full %>% select(age, gender, date, other_std_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(other_std_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of other_std Diagnoses")
+  
+  #other_std ratio x age x gender x time
+  data_full %>% select(age, gender, date, other_std) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(other_std,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of other_std Diagnoses")
+  
+  #other_std diag x age x gender x time
+  data_full %>% select(age, gender, date, other_std_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(other_std_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of other_std Diagnoses")
+  
+  #other_std ratio X state (male)
+  data_full %>% select(state, gender, date, other_std) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(other_std, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of other_std Diagnoses")
+  
+  #other_std diag X state (male)
+  data_full %>% select(state, gender, date, other_std_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(other_std_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of other_std Diagnoses")
+  
+  #other_std ratio X state (female)
+  data_full %>% select(state, gender, date, other_std) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(other_std, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of other_std Diagnoses")
+  
+  #other_std diag X state (female)
+  data_full %>% select(state, gender, date, other_std_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(other_std_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of other_std Diagnoses")
+  
+  #other_std ratio x income x gender
+  data_full %>% select(age, income, gender, date, other_std, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(other_std, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of other_std Diagnoses")
+  
+  #other_std diag x income x gender
+  data_full %>% select(age, income, gender, date, other_std_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(other_std_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of other_std Diagnoses")
+  
+  #other_std ratio x education x gender
+  data_full %>% select(age, education, gender, date, other_std) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(other_std, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of other_std Diagnoses")
+  
+  #other_std diag x education x gender
+  data_full %>% select(age, education, gender, date, other_std_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(other_std_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of other_std Diagnoses")
+  
+```
+
+## Parasitic
+```{r parasitic}
+  #parasitic ratio X age X gender
+  data_full %>% select(age, gender, date, parasitic) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(parasitic, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of parasitic Diagnoses")
+  
+  #parasitic diags X age X gender
+  data_full %>% select(age, gender, date, parasitic_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(parasitic_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of parasitic Diagnoses")
+  
+  #parasitic ratio x age x gender x time
+  data_full %>% select(age, gender, date, parasitic) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(parasitic,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of parasitic Diagnoses")
+  
+  #parasitic diag x age x gender x time
+  data_full %>% select(age, gender, date, parasitic_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(parasitic_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of parasitic Diagnoses")
+  
+  #parasitic ratio X state (male)
+  data_full %>% select(state, gender, date, parasitic) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(parasitic, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of parasitic Diagnoses")
+  
+  #parasitic diag X state (male)
+  data_full %>% select(state, gender, date, parasitic_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(parasitic_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of parasitic Diagnoses")
+  
+  #parasitic ratio X state (female)
+  data_full %>% select(state, gender, date, parasitic) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(parasitic, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of parasitic Diagnoses")
+  
+  #parasitic diag X state (female)
+  data_full %>% select(state, gender, date, parasitic_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(parasitic_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of parasitic Diagnoses")
+  
+  #parasitic ratio x income x gender
+  data_full %>% select(age, income, gender, date, parasitic, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(parasitic, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of parasitic Diagnoses")
+  
+  #parasitic diag x income x gender
+  data_full %>% select(age, income, gender, date, parasitic_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(parasitic_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of parasitic Diagnoses")
+  
+  #parasitic ratio x education x gender
+  data_full %>% select(age, education, gender, date, parasitic) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(parasitic, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of parasitic Diagnoses")
+  
+  #parasitic diag x education x gender
+  data_full %>% select(age, education, gender, date, parasitic_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(parasitic_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of parasitic Diagnoses")
+  
+  
+  
+```
+
+## Syphilis
+```{r syphilis}
+
+  #Syphilis ----
+  #syphilis ratio X age X gender
+  data_full %>% select(age, gender, date, syphilis) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(syphilis, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of syphilis Diagnoses")
+  
+  #syphilis diags X age X gender
+  data_full %>% select(age, gender, date, syphilis_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(syphilis_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of syphilis Diagnoses")
+  
+  #syphilis ratio x age x gender x time
+  data_full %>% select(age, gender, date, syphilis) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(syphilis,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of syphilis Diagnoses")
+  
+  #syphilis diag x age x gender x time
+  data_full %>% select(age, gender, date, syphilis_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(syphilis_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of syphilis Diagnoses")
+  
+  #syphilis ratio X state (male)
+  data_full %>% select(state, gender, date, syphilis) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(syphilis, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of syphilis Diagnoses")
+  
+  #syphilis diag X state (male)
+  data_full %>% select(state, gender, date, syphilis_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(syphilis_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of syphilis Diagnoses")
+  
+  #syphilis ratio X state (female)
+  data_full %>% select(state, gender, date, syphilis) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(syphilis, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of syphilis Diagnoses")
+  
+  #syphilis diag X state (female)
+  data_full %>% select(state, gender, date, syphilis_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(syphilis_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of syphilis Diagnoses")
+  
+  #syphilis ratio x income x gender
+  data_full %>% select(age, income, gender, date, syphilis, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(syphilis, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of syphilis Diagnoses")
+  
+  #syphilis diag x income x gender
+  data_full %>% select(age, income, gender, date, syphilis_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(syphilis_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of syphilis Diagnoses")
+  
+  #syphilis ratio x education x gender
+  data_full %>% select(age, education, gender, date, syphilis) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(syphilis, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of syphilis Diagnoses")
+  
+  #syphilis diag x education x gender
+  data_full %>% select(age, education, gender, date, syphilis_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(syphilis_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of syphilis Diagnoses")
+  
+  
+```  
+
+## Trich
+```{r trich}
+  #trich ratio X age X gender
+  data_full %>% select(age, gender, date, trich) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(trich, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="Mean Ratio of trich Diagnoses")
+  
+  #trich diags X age X gender
+  data_full %>% select(age, gender, date, trich_diag) %>% 
+    group_by(age, gender) %>% summarize(mean = mean(trich_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(age, mean, fill=gender)) + geom_col() + facet_wrap(.~gender, nrow=2)+ 
+    labs(x = "Age", y="# of trich Diagnoses")
+  
+  #trich ratio x age x gender x time
+  data_full %>% select(age, gender, date, trich) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(trich,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="Mean Ratio of trich Diagnoses")
+  
+  #trich diag x age x gender x time
+  data_full %>% select(age, gender, date, trich_diag) %>% 
+    group_by(age, date, gender) %>% summarize(mean = mean(trich_diag,  na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(date, mean, fill=gender)) + geom_col() + facet_wrap(gender~age, nrow=2)+ 
+    labs(x = "Date", y="# of trich Diagnoses")
+  
+  #trich ratio X state (male)
+  data_full %>% select(state, gender, date, trich) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(trich, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of trich Diagnoses")
+  
+  #trich diag X state (male)
+  data_full %>% select(state, gender, date, trich_diag) %>% 
+    filter(gender=="Male") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(trich_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of trich Diagnoses")
+  
+  #trich ratio X state (female)
+  data_full %>% select(state, gender, date, trich) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(trich, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="Mean Ratio of trich Diagnoses")
+  
+  #trich diag X state (female)
+  data_full %>% select(state, gender, date, trich_diag) %>% 
+    filter(gender=="Female") %>% 
+    group_by(state, gender) %>% summarize(mean = mean(trich_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(state, -mean), mean, fill=gender)) + geom_col() + 
+    facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))+ 
+    labs(x = "State", y="# of trich Diagnoses")
+  
+  #trich ratio x income x gender
+  data_full %>% select(age, income, gender, date, trich, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(trich, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="Mean Ratio of trich Diagnoses")
+  
+  #trich diag x income x gender
+  data_full %>% select(age, income, gender, date, trich_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(income, gender) %>% summarize(mean = mean(trich_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(reorder(income, -mean), mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Less than $14,999", "$15,000 - $19,999", "$20,000 - $24,999", "$25,000 - $29,999", 
+                                "$30,000 - $34,999", "$35,000 - $39,999", "$40,000 - $44,999", "$45,000 - $49,999", 
+                                "$50,000 - $54,999", "$55,000 - $59,999", "$60,000 - $64,999", "$65,000 - $69,999",   
+                                "$70,000 - $74,999", "$75,000 - $79,999", "$80,000 - $84,999", "$85,000 - $89,999",   
+                                "$90,000 - $94,999", "$95,000 - $99,999", "$100,000 - $104,999", "$105,000 - $109,999", 
+                                "$110,000 - $114,999", "$115,000 - $119,999", "$120,000 - $124,999", "$125,000 - $129,999", 
+                                "$130,000 - $134,999", "$135,000 - $139,999", "$140,000 - $144,999", "$145,000 - $149,999",    
+                                "$150,000 - $159,999", "$160,000 - $169,999", "$170,000 - $179,999", "$180,000 - $189,999", 
+                                "$190,000 - $199,999", "$200,000 - $224,999", "$225,000 - $249,999", "$250,000 or more"))+ 
+    labs(x = "Income", y="# of trich Diagnoses")
+  
+  #trich ratio x education x gender
+  data_full %>% select(age, education, gender, date, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(trich, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="Mean Ratio of trich Diagnoses")
+  
+  #trich diag x education x gender
+  data_full %>% select(age, education, gender, date, trich_diag, gential_warts, gonorrhea, herpes, hpv, other_std, parasitic, syphilis, trich) %>% 
+    group_by(education, gender) %>% summarize(mean = mean(trich_diag, na.rm = TRUE)) %>% 
+    ggplot(mapping = aes(education, mean, fill=gender)) + geom_col() + facet_wrap(gender~., nrow=2) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) + 
+    scale_x_discrete(limits = c("Some High School or Less", "High School", "Some College", "College", "Graduate School"))+ 
+    labs(x = "Education", y="# of trich Diagnoses")
+  
+```
